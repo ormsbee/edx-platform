@@ -12,6 +12,7 @@ def set_show_captions(step, setting):
 
     world.css_click('a.edit-button')
     world.wait_for(lambda _driver: world.css_visible('a.save-button'))
+    world.click_link_by_text('Advanced')
     world.browser.select('Show Captions', setting)
     world.css_click('a.save-button')
 
@@ -32,18 +33,25 @@ def shows_captions(_step, show_captions):
 
 @step('I see the correct video settings and default values$')
 def correct_video_settings(_step):
-    world.verify_all_setting_entries([['Display Name', 'Video', False],
-                                      ['Download Track', '', False],
-                                      ['Download Video', '', False],
-                                      ['End Time', '0', False],
-                                      ['HTML5 Timed Transcript', '', False],
-                                      ['Show Captions', 'True', False],
-                                      ['Start Time', '0', False],
-                                      ['Video Sources', '', False],
-                                      ['Youtube ID', 'OEoXaMPEzfM', False],
-                                      ['Youtube ID for .75x speed', '', False],
-                                      ['Youtube ID for 1.25x speed', '', False],
-                                      ['Youtube ID for 1.5x speed', '', False]])
+    world.verify_all_setting_entries([
+        # basic
+        ['Display Name', 'Video', False],
+        ['Video URL', 'http://youtu.be/OEoXaMPEzfM, , ', False],
+
+        # advanced
+        ['Display Name', 'Video', False],
+        ['Download Track', '', False],
+        ['Download Video', '', False],
+        ['End Time', '0', False],
+        ['HTML5 Timed Transcript', '', False],
+        ['Show Captions', 'True', False],
+        ['Start Time', '0', False],
+        ['Video Sources', '', False],
+        ['Youtube ID', 'OEoXaMPEzfM', False],
+        ['Youtube ID for .75x speed', '', False],
+        ['Youtube ID for 1.25x speed', '', False],
+        ['Youtube ID for 1.5x speed', '', False]
+    ])
 
 
 @step('my video display name change is persisted on save$')
