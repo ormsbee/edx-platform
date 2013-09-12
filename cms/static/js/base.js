@@ -1,4 +1,4 @@
-require(["jquery", "underscore", "gettext", "js/views/feedback_notification", "js/views/feedback_prompt",
+define(["jquery", "underscore", "gettext", "js/views/feedback_notification", "js/views/feedback_prompt",
          "jquery.ui", "jquery.timepicker", "jquery.leanModal", "jquery.form"],
     function($, _, gettext, NotificationView, PromptView) {
 
@@ -863,5 +863,8 @@ function saveSetSectionScheduleDate(e) {
         saving.hide();
     });
 }
+    // Add to window object for unit test (overview_spec).
+    window.saveSetSectionScheduleDate = saveSetSectionScheduleDate;
+    window.deleteSection = deleteSection;
 
 }); // end require()
