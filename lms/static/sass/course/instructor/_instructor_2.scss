@@ -192,6 +192,7 @@ section.instructor-dashboard-content-2 {
   // system feedback - messages
   .msg {
 
+
     .copy {
       font-weight: 600;
     }
@@ -521,4 +522,8 @@ section.instructor-dashboard-content-2 {
     position: absolute;
     right: $baseline;
   }
+}
+
+input[name="subject"] {
+  width:600px;
 }
