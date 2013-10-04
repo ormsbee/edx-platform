@@ -54,4 +54,49 @@ class TestPhotoVerification(TestCase):
         #attempt.deny("Could not read name on Photo ID")
         #assert_equals(attempt.status, "denied")
 
+    def test_user_status(self):
+        # test for correct status when no error returned
+        user = UserFactory.create()
+        status = SoftwareSecurePhotoVerification.user_status(user)
+        self.assertEquals(status, ('none', ''))
 
+        # test for when one has been created
+        attempt = SoftwareSecurePhotoVerification(user=user)
+        attempt.status = 'approved'
+        attempt.save()
+
+        status = SoftwareSecurePhotoVerification.user_status(user)
+        self.assertEquals(status, (attempt.status, ''))
+
+        # create another one for the same user, make sure the right one is
+        # returned
+        attempt2 = SoftwareSecurePhotoVerification(user=user)
+        attempt2.status = 'denied'
+        attempt2.error_msg = '[{"photoIdReasons": ["Not provided"]}]'
+        attempt2.save()
+
+        status = SoftwareSecurePhotoVerification.user_status(user)
+        self.assertEquals(status, (attempt2.status, "Photo ID Issues: Not provided"))
+
+    def test_parse_error_msg_success(self):
+        user = UserFactory.create()
+        attempt = SoftwareSecurePhotoVerification(user=user)
+        attempt.status = 'denied'
+        attempt.error_msg = '[{"photoIdReasons": ["Not provided"]}]'
+        parsed_error_msg = attempt.parse_error_msg()
+        self.assertEquals("Photo ID Issues: Not provided", parsed_error_msg)
+
+    def test_parse_error_msg_failure(self):
+        user = UserFactory.create()
+        attempt = SoftwareSecurePhotoVerification(user=user)
+        attempt.status = 'denied'
+        # when we can't parse into json
+        bad_messages = {
+            'Not Provided',
+            '[{"IdReasons": ["Not provided"]}]',
+            '{"IdReasons": ["Not provided"]}',
+        }
+        for msg in bad_messages:
+            attempt.error_msg = msg
+            parsed_error_msg = attempt.parse_error_msg()
+            self.assertEquals(parsed_error_msg, "There was an error verifying your ID photos.")
