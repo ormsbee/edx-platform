@@ -49,10 +49,9 @@ class SplitMongoModuleStore(ModuleStoreBase):
     and sharing.
     """
     # pylint: disable=C0103
-    def __init__(self, host, db, collection, fs_root, render_template,
-                 port=27017, default_class=None,
+    def __init__(self, doc_store_config, fs_root, render_template,
+                 default_class=None,
                  error_tracker=null_error_tracker,
-                 user=None, password=None,
                  mongo_options=None,
                  loc_mapper=None,
                  **kwargs):
@@ -62,13 +61,17 @@ class SplitMongoModuleStore(ModuleStoreBase):
         if mongo_options is None:
             mongo_options = {}
 
-        self.db = pymongo.database.Database(pymongo.MongoClient(
-            host=host,
-            port=port,
-            tz_aware=True,
-            **mongo_options
-        ), db)
+        self.db = pymongo.database.Database(
+            pymongo.MongoClient(
+                host=doc_store_config['host'],
+                port=doc_store_config.get('port', 27017),
+                tz_aware=True,
+                **mongo_options
+            ),
+            doc_store_config['db']
+        )
 
+        collection = doc_store_config['collection']
         self.course_index = self.db[collection + '.active_versions']
         self.structures = self.db[collection + '.structures']
         self.definitions = self.db[collection + '.definitions']
@@ -77,6 +80,8 @@ class SplitMongoModuleStore(ModuleStoreBase):
         # _add_cache could use a lru mechanism to control the cache size?
         self.thread_cache = threading.local()
 
+        user = doc_store_config.get('user', None)
+        password = doc_store_config.get('password', None)
         if user is not None and password is not None:
             self.db.authenticate(user, password)
 

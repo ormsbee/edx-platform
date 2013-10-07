@@ -255,10 +255,10 @@ class MongoModuleStore(ModuleStoreBase):
     """
 
     # TODO (cpennington): Enable non-filesystem filestores
-    def __init__(self, host, db, collection, fs_root, render_template,
-                 port=27017, default_class=None,
+    def __init__(self, doc_store_config, fs_root, render_template,
+                 default_class=None,
                  error_tracker=null_error_tracker,
-                 user=None, password=None, mongo_options=None, **kwargs):
+                 mongo_options=None, **kwargs):
 
         super(MongoModuleStore, self).__init__(**kwargs)
 
@@ -266,12 +266,14 @@ class MongoModuleStore(ModuleStoreBase):
             mongo_options = {}
 
         self.collection = pymongo.connection.Connection(
-            host=host,
-            port=port,
+            host=doc_store_config['host'],
+            port=doc_store_config.get('port', 27017),
             tz_aware=True,
             **mongo_options
-        )[db][collection]
+        )[doc_store_config['db']][doc_store_config['collection']]
 
+        user = doc_store_config.get('user', None)
+        password = doc_store_config.get('password', None)
         if user is not None and password is not None:
             self.collection.database.authenticate(user, password)
 
@@ -281,7 +283,8 @@ class MongoModuleStore(ModuleStoreBase):
         # Force mongo to maintain an index over _id.* that is in the same order
         # that is used when querying by a location
         self.collection.ensure_index(
-            zip(('_id.' + field for field in Location._fields), repeat(1)))
+            zip(('_id.' + field for field in Location._fields), repeat(1))
+        )
 
         if default_class is not None:
             module_path, _, class_name = default_class.rpartition('.')
