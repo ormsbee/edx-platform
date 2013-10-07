@@ -262,19 +262,17 @@ section.instructor-dashboard-content-2 {
 
   // system feedback - messages
   .msg {
-
-
-    .copy {
-      font-weight: 600;
-    }
+    border-radius: 1px;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: green;
   }
 
   .msg-confirm {
+    border-top: 2px solid green;
     background: tint(green,90%);
-
-    .copy {
-      color: green;
-    }
+    display: none;
   }
 
   .list-advice {
@@ -291,7 +289,7 @@ section.instructor-dashboard-content-2 {
       }
     }
   }
-  .msg .copy {
+   .copy {
       font-weight: 600; }
   .msg-confirm {
     background: #e5f2e5; }
