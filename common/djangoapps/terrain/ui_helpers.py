@@ -240,7 +240,6 @@ def css_has_text(css_selector, text, index=0, allow_blank=True):
         world.wait_for(lambda _: world.css_text(css_selector, index=index))
 
     return world.css_text(css_selector, index=index) == text
->>>>>>> 0920dea... Added acceptance tests for bulk email (through beta dashboard)
 
 
 @world.absorb
