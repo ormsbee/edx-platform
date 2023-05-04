@@ -125,6 +125,7 @@ def safe_exec(
 
     If `unsafely` is true, then the code will actually be executed without sandboxing.
     """
+    unsafely = True
     # Check the cache for a previous result.
     if cache:
         safe_globals = json_safe(globals_dict)
@@ -145,7 +146,8 @@ def safe_exec(
     # Create the complete code we'll run.
     code_prolog = CODE_PROLOG % random_seed
 
-    if is_codejail_rest_service_enabled():
+    #if is_codejail_rest_service_enabled():
+    if False:
         data = {
             "code": code_prolog + LAZY_IMPORTS + code,
             "globals_dict": globals_dict,
@@ -158,7 +160,7 @@ def safe_exec(
 
         emsg, exception = get_remote_exec(data)
 
-    else:
+    elif False:
         # Decide which code executor to use.
         if unsafely:
             exec_fn = codejail_not_safe_exec
@@ -182,6 +184,80 @@ def safe_exec(
         else:
             emsg = None
 
+    else:
+        cache = False
+
+        import json        
+        
+        from wasmtime import Config, Engine, Linker, Module, Store, WasiConfig
+
+        cfg = Config()
+        # necessary if we want to interrupt execution after some amount of instructions executed
+        cfg.consume_fuel = True 
+        cfg.cache = True
+
+        engine = Engine(cfg)
+
+        linker = Linker(engine)
+        linker.define_wasi()
+
+        print("GLOBALS:")
+        print(globals_dict)
+
+        with open("./openedx-wasm/untrusted_code/globals.in.json", "w") as globals_infile:
+            json.dump(globals_dict, globals_infile)
+
+        module = Module.from_file(linker.engine, "./openedx-wasm/python/python-3.11.3/bin/python-3.11.3.wasm")
+
+        config = WasiConfig()
+        config.argv = ("python", "untrusted_code/run.py")
+
+        config.preopen_dir("./openedx-wasm/python/python-3.11.3", "/")
+        config.preopen_dir("./openedx-wasm/untrusted_code", "/untrusted_code")
+        
+        code_with_template = (
+            "import wasm_helper\n"
+            "\n"
+            "globals().update(wasm_helper.read_globals_from_file())\n"
+            "\n"
+            f"{code}\n"
+            "\n"
+            "wasm_helper.write_globals_to_file(globals())"
+        )
+
+        with open("./openedx-wasm/untrusted_code/run.py", "w") as runfile:
+            runfile.write(code_with_template)
+
+        # mkdir chroot, which is an arbitrary name for a directory
+        config.stdout_file = './openedx-wasm/logs/out.log' # will be created if it doesn't exist
+        config.stderr_file = './openedx-wasm/logs/err.log' # will be created if it doesn't exist
+
+        store = Store(linker.engine)
+        
+        store.add_fuel(500_000_000_000) # amount of fuel limits how many instructions can be executed
+        store.set_wasi(config)
+        instance = linker.instantiate(store, module)
+
+        # _start is the default wasi main function
+        start = instance.exports(store)["_start"]
+        
+        mem = instance.exports(store)["memory"]
+        mem_size = mem.size(store)
+        data_len = mem.data_len(store)
+
+        print(f"mem.size: {mem_size} pages of 64kb")
+        print(f"mem.data_len: {data_len:_}")
+        
+        start(store)
+        consumed = store.fuel_consumed()
+        print(f"fuel consumed: {consumed:_}")
+
+        with open('./openedx-wasm/logs/out.log') as f:
+            print(f.read())
+        
+        with open('./openedx-wasm/untrusted_code/globals.out.json') as globals_outfile:
+            globals_dict.update(json.load(globals_outfile))
+
     # Put the result back in the cache.  This is complicated by the fact that
     # the globals dict might not be entirely serializable.
     if cache:
@@ -189,5 +265,6 @@ def safe_exec(
         cache.set(key, (emsg, cleaned_results))
 
     # If an exception happened, raise it now.
-    if emsg:
-        raise exception
+    #if emsg:
+    #    raise exception
+
