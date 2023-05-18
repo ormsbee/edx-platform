@@ -149,3 +149,7 @@ pii_report
 
 # Pyenv Python version file
 .python-version
+
+openedx-wasm/untrusted/*.json
+openedx-wasm/untrusted/run.py
+
