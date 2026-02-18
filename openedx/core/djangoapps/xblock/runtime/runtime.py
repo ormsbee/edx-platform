@@ -85,6 +85,9 @@ class XBlockRuntime(RuntimeShim, Runtime):
     The main reason we cannot make the runtime a long-lived singleton is that
     the XBlock runtime API requires 'user_id' to be a property of the runtime,
     not an argument passed in when loading particular blocks.
+
+    TODO: This should probably be merged with OpenedXContentRuntime, its one and
+          only child class. See https://github.com/openedx/openedx-platform/issues/38021
     """
 
     # ** Do not add any XModule compatibility code to this class **
@@ -259,14 +262,14 @@ class XBlockRuntime(RuntimeShim, Runtime):
 
     def parse_xml_file(self, fileobj):
         # Deny access to the inherited method
-        raise NotImplementedError("XML Serialization is only supported with LearningCoreXBlockRuntime")
+        raise NotImplementedError("XML Serialization is only supported with OpenedXContentRuntime")
 
     def add_node_as_child(self, block, node):
         """
         Called by XBlock.parse_xml to treat a child node as a child block.
         """
         # Deny access to the inherited method
-        raise NotImplementedError("XML Serialization is only supported with LearningCoreXBlockRuntime")
+        raise NotImplementedError("XML Serialization is only supported with OpenedXContentRuntime")
 
     def service(self, block: XBlock, service_name: str):
         """
@@ -301,7 +304,7 @@ class XBlockRuntime(RuntimeShim, Runtime):
 
             return DjangoXBlockUserService(
                 self.user,
-                # The value should be updated to whether the user is staff in the context when Learning Core runtime
+                # The value should be updated to whether the user is staff in the context when openedx_content runtime
                 # adds support for courses.
                 user_is_staff=self.user.is_staff,  # type: ignore
                 anonymous_user_id=self.anonymous_student_id,
