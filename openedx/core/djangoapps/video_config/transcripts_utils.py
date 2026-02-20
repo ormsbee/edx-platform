@@ -1019,7 +1019,7 @@ def get_transcript_from_openedx_content(video_block, language, output_format, tr
     try:
         content = (
             component_version
-            .componentversioncontent_set
+            .componentversionmedia_set
             .filter(content__has_file=True)
             .select_related('content')
             .get(key=file_path)

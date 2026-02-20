@@ -238,7 +238,7 @@ def set_library_block_olx(usage_key: LibraryUsageLocatorV2, new_olx_str: str) ->
     now = datetime.now(tz=timezone.utc)
 
     with transaction.atomic():
-        new_content = content_api.get_or_create_text_content(
+        new_content = content_api.get_or_create_text_media(
             component.learning_package_id,
             get_or_create_olx_media_type(usage_key.block_type).id,
             text=new_olx_str,
@@ -247,7 +247,7 @@ def set_library_block_olx(usage_key: LibraryUsageLocatorV2, new_olx_str: str) ->
         new_component_version = content_api.create_next_component_version(
             component.pk,
             title=new_title,
-            content_to_replace={
+            media_to_replace={
                 'block.xml': new_content.pk,
             },
             created=now,
@@ -481,13 +481,13 @@ def _import_staged_block(
                 media_type_str = "application/octet-stream"
 
             media_type = content_api.get_or_create_media_type(media_type_str)
-            content = content_api.get_or_create_file_content(
+            content = content_api.get_or_create_file_media(
                 learning_package.id,
                 media_type.id,
                 data=file_data,
                 created=now,
             )
-            content_api.create_component_version_content(
+            content_api.create_component_version_media(
                 component_version.pk,
                 content.id,
                 key=filename,
@@ -836,7 +836,7 @@ def get_library_block_static_asset_files(usage_key: LibraryUsageLocatorV2) -> li
     # cvc = the ComponentVersionContent through table
     cvc_set = (
         component_version
-        .componentversioncontent_set
+        .componentversionmedia_set
         .filter(content__has_file=True)
         .order_by('key')
         .select_related('content')
@@ -897,7 +897,7 @@ def add_library_block_static_asset_file(
     with transaction.atomic():
         component_version = content_api.create_next_component_version(
             component.pk,
-            content_to_replace={file_path: file_content},
+            media_to_replace={file_path: file_content},
             created=datetime.now(tz=timezone.utc),
             created_by=user.id if user else None,
         )
@@ -945,7 +945,7 @@ def delete_library_block_static_asset_file(usage_key, file_path, user=None):
     with transaction.atomic():
         component_version = content_api.create_next_component_version(
             component.pk,
-            content_to_replace={file_path: None},
+            media_to_replace={file_path: None},
             created=now,
             created_by=user.id if user else None,
         )
@@ -1038,13 +1038,13 @@ def _create_component_for_block(
             created_by=user_id,
             can_stand_alone=can_stand_alone,
         )
-        content = content_api.get_or_create_text_content(
+        content = content_api.get_or_create_text_media(
             learning_package.id,
             get_or_create_olx_media_type(usage_key.block_type).id,
             text=xml_text,
             created=now,
         )
-        content_api.create_component_version_content(
+        content_api.create_component_version_media(
             component_version.pk,
             content.id,
             key="block.xml",

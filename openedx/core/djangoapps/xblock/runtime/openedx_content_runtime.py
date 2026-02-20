@@ -193,8 +193,8 @@ class OpenedXContentRuntime(XBlockRuntime):
         if component_version is None:
             raise NoSuchUsage(usage_key)
 
-        content = component_version.contents.get(
-            componentversioncontent__key="block.xml"
+        content = component_version.media.get(
+            componentversionmedia__key="block.xml"
         )
         xml_node = etree.fromstring(content.text)
         block_type = usage_key.block_type
@@ -251,7 +251,7 @@ class OpenedXContentRuntime(XBlockRuntime):
         # cvc = the ComponentVersionContent through-table
         cvc_list = (
             component_version
-            .componentversioncontent_set
+            .componentversionmedia_set
             .filter(content__has_file=True)
             .select_related('content')
             .order_by('key')
@@ -298,7 +298,7 @@ class OpenedXContentRuntime(XBlockRuntime):
             block_media_type = content_api.get_or_create_media_type(
                 f"application/vnd.openedx.xblock.v1.{usage_key.block_type}+xml"
             )
-            content = content_api.get_or_create_text_content(
+            content = content_api.get_or_create_text_media(
                 component.learning_package_id,
                 block_media_type.id,
                 text=serialized.olx_str,
@@ -307,7 +307,7 @@ class OpenedXContentRuntime(XBlockRuntime):
             content_api.create_next_component_version(
                 component.pk,
                 title=block.display_name,
-                content_to_replace={
+                media_to_replace={
                     "block.xml": content.id,
                 },
                 created=now,
@@ -446,10 +446,10 @@ class OpenedXContentRuntime(XBlockRuntime):
         component_version = self.get_component_version_from_block(block)
 
         try:
-            content = (
+            media = (
                 component_version
-                .componentversioncontent_set
-                .filter(content__has_file=True)
+                .componentversionmedia_set
+                .filter(media__has_file=True)
                 .get(key=f"static/{asset_path}")
             )
         except ObjectDoesNotExist:
@@ -457,10 +457,10 @@ class OpenedXContentRuntime(XBlockRuntime):
                 # Retry with unquoted path. We don't always unquote because it would not
                 # be backwards-compatible, but we need to try both.
                 asset_path = unquote(asset_path)
-                content = (
+                media = (
                     component_version
-                    .componentversioncontent_set
-                    .filter(content__has_file=True)
+                    .componentversionmedia_set
+                    .filter(media__has_file=True)
                     .get(key=f"static/{asset_path}")
                 )
             except ObjectDoesNotExist:
