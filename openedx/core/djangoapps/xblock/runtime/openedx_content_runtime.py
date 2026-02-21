@@ -248,22 +248,22 @@ class OpenedXContentRuntime(XBlockRuntime):
         """
         component_version = self.get_component_version_from_block(block)
 
-        # cvc = the ComponentVersionContent through-table
-        cvc_list = (
+        # cvm = the ComponentVersionMedia through-table
+        cvm_list = (
             component_version
             .componentversionmedia_set
-            .filter(content__has_file=True)
-            .select_related('content')
+            .filter(media__has_file=True)
+            .select_related('media')
             .order_by('key')
         )
 
         return [
             StaticFile(
-                name=cvc.key,
-                url=self._absolute_url_for_asset(component_version, cvc.key),
-                data=cvc.content.read_file().read() if fetch_asset_data else None,
+                name=cvm.key,
+                url=self._absolute_url_for_asset(component_version, cvm.key),
+                data=cvm.media.read_file().read() if fetch_asset_data else None,
             )
-            for cvc in cvc_list
+            for cvm in cvm_list
         ]
 
     def save_block(self, block):
@@ -298,7 +298,7 @@ class OpenedXContentRuntime(XBlockRuntime):
             block_media_type = content_api.get_or_create_media_type(
                 f"application/vnd.openedx.xblock.v1.{usage_key.block_type}+xml"
             )
-            content = content_api.get_or_create_text_media(
+            media = content_api.get_or_create_text_media(
                 component.learning_package_id,
                 block_media_type.id,
                 text=serialized.olx_str,
@@ -308,7 +308,7 @@ class OpenedXContentRuntime(XBlockRuntime):
                 component.pk,
                 title=block.display_name,
                 media_to_replace={
-                    "block.xml": content.id,
+                    "block.xml": media.id,
                 },
                 created=now,
                 created_by=self.user.id if self.user else None

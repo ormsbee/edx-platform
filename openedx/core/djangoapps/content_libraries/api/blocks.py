@@ -833,30 +833,30 @@ def get_library_block_static_asset_files(usage_key: LibraryUsageLocatorV2) -> li
     if component_version is None:
         return []
 
-    # cvc = the ComponentVersionContent through table
-    cvc_set = (
+    # cvm = the ComponentVersionMedia through table
+    cvm_set = (
         component_version
         .componentversionmedia_set
-        .filter(content__has_file=True)
+        .filter(media__has_file=True)
         .order_by('key')
-        .select_related('content')
+        .select_related('media')
     )
 
     site_root_url = get_xblock_app_config().get_site_root_url()
 
     return [
         LibraryXBlockStaticFile(
-            path=cvc.key,
-            size=cvc.content.size,
+            path=cvm.key,
+            size=cvm.media.size,
             url=site_root_url + reverse(
                 'content_libraries:library-assets',
                 kwargs={
                     'component_version_uuid': component_version.uuid,
-                    'asset_path': cvc.key,
+                    'asset_path': cvm.key,
                 }
             ),
         )
-        for cvc in cvc_set
+        for cvm in cvm_set
     ]
 
 
