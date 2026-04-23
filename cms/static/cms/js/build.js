@@ -23,7 +23,6 @@
             'js/factories/export',
             'js/factories/group_configurations',
             'js/factories/index',
-            'js/factories/manage_users',
             'js/factories/outline',
             'js/factories/settings_advanced'
         ]),
