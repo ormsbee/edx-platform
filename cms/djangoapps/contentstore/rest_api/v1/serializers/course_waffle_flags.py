@@ -81,8 +81,7 @@ class CourseWaffleFlagsSerializer(serializers.Serializer):
         """
         Method to get the use_new_advanced_settings_page switch
         """
-        course_key = self.get_course_key()
-        return toggles.use_new_advanced_settings_page(course_key)
+        return True
 
     def get_use_new_grading_page(self, obj):
         """

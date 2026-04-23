@@ -30,7 +30,7 @@ from pytz import UTC
 from xblock.fields import Date
 
 from cms.djangoapps.contentstore import toggles
-from cms.djangoapps.contentstore.utils import reverse_course_url, reverse_usage_url
+from cms.djangoapps.contentstore.utils import get_advanced_settings_url, reverse_course_url, reverse_usage_url
 from cms.djangoapps.models.settings.course_grading import (
     GRADING_POLICY_CHANGED_EVENT_TYPE,
     CourseGradingModel,
@@ -123,7 +123,6 @@ class CourseAdvanceSettingViewTest(CourseTestCase, MilestonesTestCaseMixin):
         CourseStaffRole(self.course.id).add_users(self.nonstaff)
 
     @override_settings(FEATURES={'DISABLE_MOBILE_COURSE_AVAILABLE': True})
-    @override_waffle_flag(toggles.LEGACY_STUDIO_ADVANCED_SETTINGS, True)
     def test_mobile_field_available(self):
 
         """
@@ -131,10 +130,9 @@ class CourseAdvanceSettingViewTest(CourseTestCase, MilestonesTestCaseMixin):
         when DISABLE_MOBILE_COURSE_AVAILABLE is true.
         """
 
-        response = self.client.get_html(self.course_setting_url)
-        start = response.content.decode('utf-8').find("mobile_available")
-        end = response.content.decode('utf-8').find("}", start)
-        settings_fields = json.loads(response.content.decode('utf-8')[start + len("mobile_available: "):end + 1])
+        response = self.client.get(self.course_setting_url, HTTP_ACCEPT='application/json')
+        data = json.loads(response.content.decode('utf-8'))
+        settings_fields = data.get('mobile_available')
 
         self.assertEqual(settings_fields["display_name"], "Mobile Course Available")  # noqa: PT009
         self.assertEqual(settings_fields["deprecated"], True)  # noqa: PT009
@@ -146,7 +144,6 @@ class CourseAdvanceSettingViewTest(CourseTestCase, MilestonesTestCaseMixin):
         (False, True, True)
     )
     @ddt.unpack
-    @override_waffle_flag(toggles.LEGACY_STUDIO_ADVANCED_SETTINGS, True)
     def test_discussion_fields_available(self, is_pages_and_resources_enabled,
                                          is_legacy_discussion_setting_enabled, fields_visible):
         """
@@ -155,11 +152,55 @@ class CourseAdvanceSettingViewTest(CourseTestCase, MilestonesTestCaseMixin):
 
         with override_waffle_flag(ENABLE_PAGES_AND_RESOURCES_MICROFRONTEND, is_pages_and_resources_enabled):
             with override_waffle_flag(OVERRIDE_DISCUSSION_LEGACY_SETTINGS_FLAG, is_legacy_discussion_setting_enabled):
-                response = self.client.get_html(self.course_setting_url).content.decode('utf-8')
-                self.assertEqual('allow_anonymous' in response, fields_visible)  # noqa: PT009
-                self.assertEqual('allow_anonymous_to_peers' in response, fields_visible)  # noqa: PT009
-                self.assertEqual('discussion_blackouts' in response, fields_visible)  # noqa: PT009
-                self.assertEqual('discussion_topics' in response, fields_visible)  # noqa: PT009
+                response = self.client.get(self.course_setting_url, HTTP_ACCEPT='application/json')
+                data = json.loads(response.content.decode('utf-8'))
+                self.assertEqual('allow_anonymous' in data, fields_visible)  # noqa: PT009
+                self.assertEqual('allow_anonymous_to_peers' in data, fields_visible)  # noqa: PT009
+                self.assertEqual('discussion_blackouts' in data, fields_visible)  # noqa: PT009
+                self.assertEqual('discussion_topics' in data, fields_visible)  # noqa: PT009
+
+    @ddt.data(False, True)
+    @override_waffle_flag(toggles.LEGACY_STUDIO_IMPORT, True)
+    @override_waffle_flag(toggles.LEGACY_STUDIO_EXPORT, True)
+    def test_disable_advanced_settings_feature(self, disable_advanced_settings):
+        """
+        If this feature is enabled, only Django Staff/Superuser should be able to access the "Advanced Settings" page.
+        For non-staff users the "Advanced Settings" tab link should not be visible.
+        """
+        with override_settings(FEATURES={
+            'DISABLE_ADVANCED_SETTINGS': disable_advanced_settings,
+        }, COURSE_AUTHORING_MICROFRONTEND_URL='https://mfe.example'):
+            advanced_settings_link_html = (
+                f'<a href="{get_advanced_settings_url(self.course.id)}">Advanced Settings</a>'
+            ).encode()
+            for handler in (
+                'import_handler',
+                'export_handler',
+            ):
+                # Test that non-staff users don't see the "Advanced Settings" tab link.
+                response = self.non_staff_client.get_html(
+                    get_url(self.course.id, handler)
+                )
+                self.assertEqual(response.status_code, 200)  # noqa: PT009
+                if disable_advanced_settings:
+                    self.assertNotIn(advanced_settings_link_html, response.content)  # noqa: PT009
+                else:
+                    self.assertIn(advanced_settings_link_html, response.content)  # noqa: PT009
+
+                # Test that staff users see the "Advanced Settings" tab link.
+                response = self.client.get_html(
+                    get_url(self.course.id, handler)
+                )
+                self.assertEqual(response.status_code, 200)  # noqa: PT009
+                self.assertIn(advanced_settings_link_html, response.content)  # noqa: PT009
+
+            # Test that non-staff users can't access the "Advanced Settings" page.
+            response = self.non_staff_client.get_html(self.course_setting_url)
+            self.assertEqual(response.status_code, 403 if disable_advanced_settings else 302)  # noqa: PT009
+
+            # Test that staff users are redirected to the MFE advanced settings page.
+            response = self.client.get_html(self.course_setting_url)
+            self.assertEqual(response.status_code, 302)  # noqa: PT009
 
     def test_grading_handler_redirects_to_mfe(self):
         """grading_handler redirects to the authoring MFE."""
