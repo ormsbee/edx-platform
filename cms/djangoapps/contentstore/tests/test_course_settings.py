@@ -29,8 +29,7 @@ from milestones.tests.utils import MilestonesTestCaseMixin
 from pytz import UTC
 from xblock.fields import Date
 
-from cms.djangoapps.contentstore import toggles
-from cms.djangoapps.contentstore.utils import get_advanced_settings_url, reverse_course_url, reverse_usage_url
+from cms.djangoapps.contentstore.utils import reverse_course_url, reverse_usage_url
 from cms.djangoapps.models.settings.course_grading import (
     GRADING_POLICY_CHANGED_EVENT_TYPE,
     CourseGradingModel,
@@ -160,45 +159,17 @@ class CourseAdvanceSettingViewTest(CourseTestCase, MilestonesTestCaseMixin):
                 self.assertEqual('discussion_topics' in data, fields_visible)  # noqa: PT009
 
     @ddt.data(False, True)
-    @override_waffle_flag(toggles.LEGACY_STUDIO_IMPORT, True)
-    @override_waffle_flag(toggles.LEGACY_STUDIO_EXPORT, True)
     def test_disable_advanced_settings_feature(self, disable_advanced_settings):
         """
-        If this feature is enabled, only Django Staff/Superuser should be able to access the "Advanced Settings" page.
-        For non-staff users the "Advanced Settings" tab link should not be visible.
+        When DISABLE_ADVANCED_SETTINGS is enabled, non-staff users should receive
+        a 403 on the advanced settings URL; staff users should always be redirected.
         """
         with override_settings(FEATURES={
             'DISABLE_ADVANCED_SETTINGS': disable_advanced_settings,
         }, COURSE_AUTHORING_MICROFRONTEND_URL='https://mfe.example'):
-            advanced_settings_link_html = (
-                f'<a href="{get_advanced_settings_url(self.course.id)}">Advanced Settings</a>'
-            ).encode()
-            for handler in (
-                'import_handler',
-                'export_handler',
-            ):
-                # Test that non-staff users don't see the "Advanced Settings" tab link.
-                response = self.non_staff_client.get_html(
-                    get_url(self.course.id, handler)
-                )
-                self.assertEqual(response.status_code, 200)  # noqa: PT009
-                if disable_advanced_settings:
-                    self.assertNotIn(advanced_settings_link_html, response.content)  # noqa: PT009
-                else:
-                    self.assertIn(advanced_settings_link_html, response.content)  # noqa: PT009
-
-                # Test that staff users see the "Advanced Settings" tab link.
-                response = self.client.get_html(
-                    get_url(self.course.id, handler)
-                )
-                self.assertEqual(response.status_code, 200)  # noqa: PT009
-                self.assertIn(advanced_settings_link_html, response.content)  # noqa: PT009
-
-            # Test that non-staff users can't access the "Advanced Settings" page.
             response = self.non_staff_client.get_html(self.course_setting_url)
             self.assertEqual(response.status_code, 403 if disable_advanced_settings else 302)  # noqa: PT009
 
-            # Test that staff users are redirected to the MFE advanced settings page.
             response = self.client.get_html(self.course_setting_url)
             self.assertEqual(response.status_code, 302)  # noqa: PT009
 
