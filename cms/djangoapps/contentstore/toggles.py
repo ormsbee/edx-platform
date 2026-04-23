@@ -159,9 +159,6 @@ def use_react_markdown_editor(course_key):
     return ENABLE_REACT_MARKDOWN_EDITOR.is_enabled(course_key)
 
 
-
-
-
 # .. toggle_name: contentstore.new_studio_mfe.use_new_video_uploads_page
 # .. toggle_implementation: CourseWaffleFlag
 # .. toggle_default: False
@@ -214,9 +211,6 @@ def use_new_unit_page(course_key):
     Returns a boolean if new studio course outline mfe is enabled
     """
     return not LEGACY_STUDIO_UNIT_EDITOR.is_enabled(course_key)
-
-
-
 
 
 # .. toggle_name: contentstore.mock_video_uploads
