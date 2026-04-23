@@ -42,7 +42,6 @@ from cms.djangoapps.contentstore.toggles import (
     libraries_v2_enabled,
     split_library_view_on_dashboard,
     use_new_export_page,
-    use_new_group_configurations_page,
     use_new_import_page,
     use_new_unit_page,
 )
@@ -475,13 +474,8 @@ def get_group_configurations_url(course_locator) -> str:
     """
     Gets course authoring microfrontend URL for group configurations page view.
     """
-    group_configurations_url = None
-    if use_new_group_configurations_page(course_locator):
-        mfe_base_url = get_course_authoring_url(course_locator)
-        course_mfe_url = f'{mfe_base_url}/course/{course_locator}/group_configurations'
-        if mfe_base_url:
-            group_configurations_url = course_mfe_url
-    return group_configurations_url
+    mfe_base_url = get_course_authoring_url(course_locator)
+    return f'{mfe_base_url}/course/{course_locator}/group_configurations' if mfe_base_url else None
 
 
 def get_custom_pages_url(course_locator) -> str:
