@@ -42,7 +42,8 @@ User = get_user_model()
 @pluggable_override('OVERRIDE_COURSE_HOME_PROGRESS_USERNAME')
 def obfuscated_username(request, student):
     """
-    Return an obfuscated username for the student, or None.
+    Return an obfuscated username for the student, or None (indicating student's
+    real name should be used).
 
     This function can be overridden by an installed plugin via the
     OVERRIDE_COURSE_HOME_PROGRESS_USERNAME setting to return a generic name
