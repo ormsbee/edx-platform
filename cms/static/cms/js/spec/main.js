@@ -261,8 +261,7 @@
         'js/spec/views/pages/index_spec',
         'js/spec/views/pages/library_users_spec',
         'js/spec/views/modals/base_modal_spec',
-        'js/spec/views/modals/move_xblock_modal_spec',
-        'js/spec/views/modals/validation_error_modal_spec'
+        'js/spec/views/modals/move_xblock_modal_spec'
     ];
 
     i = 0;

@@ -1500,8 +1500,9 @@ class ContentStoreTest(ContentStoreTestCase):
         with override_settings(COURSE_AUTHORING_MICROFRONTEND_URL='https://mfe.example'):
             resp = self.client.get_html(get_url('grading_handler', course_key, 'course_key_string'))
             self.assertEqual(resp.status_code, 302)  # noqa: PT009
-        with override_waffle_flag(toggles.LEGACY_STUDIO_ADVANCED_SETTINGS, True):
-            test_get_html('advanced_settings_handler')
+        with override_settings(COURSE_AUTHORING_MICROFRONTEND_URL='https://mfe.example'):
+            resp = self.client.get_html(get_url('advanced_settings_handler', course_key, 'course_key_string'))
+            self.assertEqual(resp.status_code, 302)  # noqa: PT009
         test_get_json('textbooks_list_handler')
 
         # Test that studio updates load

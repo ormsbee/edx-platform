@@ -41,7 +41,6 @@ from cms.djangoapps.contentstore.toggles import (
     libraries_v1_enabled,
     libraries_v2_enabled,
     split_library_view_on_dashboard,
-    use_new_advanced_settings_page,
     use_new_export_page,
     use_new_group_configurations_page,
     use_new_import_page,
@@ -306,17 +305,14 @@ def get_schedule_details_url(course_locator) -> str:
     return None
 
 
-def get_advanced_settings_url(course_locator) -> str:
+def get_advanced_settings_url(course_locator) -> str | None:
     """
     Gets course authoring microfrontend URL for advanced settings page view.
     """
-    advanced_settings_url = None
-    if use_new_advanced_settings_page(course_locator):
-        mfe_base_url = get_course_authoring_url(course_locator)
-        course_mfe_url = f'{mfe_base_url}/course/{course_locator}/settings/advanced'
-        if mfe_base_url:
-            advanced_settings_url = course_mfe_url
-    return advanced_settings_url
+    mfe_base_url = get_course_authoring_url(course_locator)
+    if mfe_base_url:
+        return f'{mfe_base_url}/course/{course_locator}/settings/advanced'
+    return None
 
 
 def get_grading_url(course_locator) -> str:
