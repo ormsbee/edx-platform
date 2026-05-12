@@ -193,8 +193,7 @@ class CourseWaffleFlagsSerializer(serializers.Serializer):
         """
         Method to get the use_new_group_configurations_page switch
         """
-        course_key = self.get_course_key()
-        return toggles.use_new_group_configurations_page(course_key)
+        return True
 
     def get_enable_course_optimizer(self, obj):
         """

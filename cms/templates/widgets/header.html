@@ -8,7 +8,7 @@
   from urllib.parse import quote_plus
   from common.djangoapps.student.auth import has_studio_advanced_settings_access
   from cms.djangoapps.contentstore import toggles
-  from cms.djangoapps.contentstore.utils import get_pages_and_resources_url, get_course_outline_url, get_course_libraries_url, get_updates_url, get_files_uploads_url, get_video_uploads_url, get_schedule_details_url, get_grading_url, get_advanced_settings_url, get_import_url, get_export_url, get_studio_home_url, get_course_team_url, get_optimizer_url, get_certificates_url
+  from cms.djangoapps.contentstore.utils import get_pages_and_resources_url, get_course_outline_url, get_course_libraries_url, get_updates_url, get_files_uploads_url, get_video_uploads_url, get_schedule_details_url, get_grading_url, get_advanced_settings_url, get_import_url, get_export_url, get_studio_home_url, get_course_team_url, get_optimizer_url, get_certificates_url, get_group_configurations_url
   from openedx.core.djangoapps.discussions.config.waffle import ENABLE_PAGES_AND_RESOURCES_MICROFRONTEND
   from openedx.core.djangoapps.lang_pref.api import header_language_selector_is_enabled, released_languages
 %>
@@ -117,7 +117,7 @@
                     <a href="${get_course_team_url(course_key)}">${_("Course Team")}</a>
                   </li>
                   <li class="nav-item nav-course-settings-group-configurations">
-                    <a href="${reverse('group_configurations_list_handler', kwargs={'course_key_string': str(course_key)})}">${_("Group Configurations")}</a>
+                    <a href="${get_group_configurations_url(course_key)}">${_("Group Configurations")}</a>
                   </li>
                   % if mfe_proctored_exam_settings_url:
                   <li class="nav-item nav-course-settings-exams">

@@ -21,7 +21,6 @@
             'js/factories/base',
             'js/factories/course_create_rerun',
             'js/factories/export',
-            'js/factories/group_configurations',
             'js/factories/index',
             'js/factories/outline',
         ]),
