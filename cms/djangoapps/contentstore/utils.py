@@ -41,8 +41,6 @@ from cms.djangoapps.contentstore.toggles import (
     libraries_v1_enabled,
     libraries_v2_enabled,
     split_library_view_on_dashboard,
-    use_new_export_page,
-    use_new_import_page,
     use_new_unit_page,
 )
 from cms.djangoapps.models.settings.course_grading import CourseGradingModel
@@ -346,30 +344,24 @@ def get_updates_url(course_locator) -> str:
     return updates_url
 
 
-def get_import_url(course_locator) -> str:
+def get_import_url(course_locator) -> str | None:
     """
     Gets course authoring microfrontend URL for import page view.
     """
-    import_url = None
-    if use_new_import_page(course_locator):
-        mfe_base_url = get_course_authoring_url(course_locator)
-        course_mfe_url = f'{mfe_base_url}/course/{course_locator}/import'
-        if mfe_base_url:
-            import_url = course_mfe_url
-    return import_url
+    mfe_base_url = get_course_authoring_url(course_locator)
+    if mfe_base_url:
+        return f'{mfe_base_url}/course/{course_locator}/import'
+    return None
 
 
-def get_export_url(course_locator) -> str:
+def get_export_url(course_locator) -> str | None:
     """
     Gets course authoring microfrontend URL for export page view.
     """
-    export_url = None
-    if use_new_export_page(course_locator):
-        mfe_base_url = get_course_authoring_url(course_locator)
-        course_mfe_url = f'{mfe_base_url}/course/{course_locator}/export'
-        if mfe_base_url:
-            export_url = course_mfe_url
-    return export_url
+    mfe_base_url = get_course_authoring_url(course_locator)
+    if mfe_base_url:
+        return f'{mfe_base_url}/course/{course_locator}/export'
+    return None
 
 
 def get_optimizer_url(course_locator) -> str:

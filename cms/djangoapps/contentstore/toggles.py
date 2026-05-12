@@ -161,43 +161,6 @@ def use_react_markdown_editor(course_key):
 
 
 
-# .. toggle_name: legacy_studio.import
-# .. toggle_implementation: WaffleFlag
-# .. toggle_default: False
-# .. toggle_description: Temporarily fall back to the old Course Import page.
-# .. toggle_use_cases: temporary
-# .. toggle_creation_date: 2025-03-14
-# .. toggle_target_removal_date: 2025-09-14
-# .. toggle_tickets: https://github.com/openedx/edx-platform/issues/36275
-# .. toggle_warning: In Ulmo, this toggle will be removed. Only the new (React-based) experience will be available.
-LEGACY_STUDIO_IMPORT = CourseWaffleFlag('legacy_studio.import', __name__)
-
-
-def use_new_import_page(course_key):
-    """
-    Returns a boolean if new studio import mfe is enabled
-    """
-    return not LEGACY_STUDIO_IMPORT.is_enabled(course_key)
-
-
-# .. toggle_name: legacy_studio.export
-# .. toggle_implementation: WaffleFlag
-# .. toggle_default: False
-# .. toggle_description: Temporarily fall back to the old Course Export page.
-# .. toggle_use_cases: temporary
-# .. toggle_creation_date: 2025-03-14
-# .. toggle_target_removal_date: 2025-09-14
-# .. toggle_tickets: https://github.com/openedx/edx-platform/issues/36275
-# .. toggle_warning: In Ulmo, this toggle will be removed. Only the new (React-based) experience will be available.
-LEGACY_STUDIO_EXPORT = CourseWaffleFlag('legacy_studio.export', __name__)
-
-
-def use_new_export_page(course_key):
-    """
-    Returns a boolean if new studio export mfe is enabled
-    """
-    return not LEGACY_STUDIO_EXPORT.is_enabled(course_key)
-
 
 # .. toggle_name: contentstore.new_studio_mfe.use_new_video_uploads_page
 # .. toggle_implementation: CourseWaffleFlag
