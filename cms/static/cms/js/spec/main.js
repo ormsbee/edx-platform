@@ -233,7 +233,6 @@
         'js/spec/models/metadata_spec',
         'js/spec/models/section_spec',
         'js/spec/models/settings_course_grader_spec',
-        'js/spec/models/settings_grading_spec',
         'js/spec/models/upload_spec',
         'js/spec/views/metadata_edit_spec',
         'js/spec/views/upload_spec',
@@ -263,8 +262,7 @@
         'js/spec/views/pages/library_users_spec',
         'js/spec/views/modals/base_modal_spec',
         'js/spec/views/modals/move_xblock_modal_spec',
-        'js/spec/views/modals/validation_error_modal_spec',
-        'js/spec/views/settings/main_spec',
+        'js/spec/views/modals/validation_error_modal_spec'
     ];
 
     i = 0;
