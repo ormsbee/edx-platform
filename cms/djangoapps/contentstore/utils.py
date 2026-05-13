@@ -297,9 +297,8 @@ def get_schedule_details_url(course_locator) -> str:
     Gets course authoring microfrontend URL for schedule and details pages view.
     """
     mfe_base_url = get_course_authoring_url(course_locator)
-    if mfe_base_url:
-        return f'{mfe_base_url}/course/{course_locator}/settings/details'
-    return None
+    course_mfe_url = f'{mfe_base_url}/course/{course_locator}/settings/details'
+    return course_mfe_url if mfe_base_url else None
 
 
 def get_advanced_settings_url(course_locator) -> str | None:
@@ -307,9 +306,8 @@ def get_advanced_settings_url(course_locator) -> str | None:
     Gets course authoring microfrontend URL for advanced settings page view.
     """
     mfe_base_url = get_course_authoring_url(course_locator)
-    if mfe_base_url:
-        return f'{mfe_base_url}/course/{course_locator}/settings/advanced'
-    return None
+    course_mfe_url = f'{mfe_base_url}/course/{course_locator}/settings/advanced'
+    return course_mfe_url if mfe_base_url else None
 
 
 def get_grading_url(course_locator) -> str:
@@ -317,9 +315,8 @@ def get_grading_url(course_locator) -> str:
     Gets course authoring microfrontend URL for grading page view.
     """
     mfe_base_url = get_course_authoring_url(course_locator)
-    if mfe_base_url:
-        return f'{mfe_base_url}/course/{course_locator}/settings/grading'
-    return None
+    course_mfe_url = f'{mfe_base_url}/course/{course_locator}/settings/grading'
+    return course_mfe_url if mfe_base_url else None
 
 
 def get_course_team_url(course_locator) -> str:
@@ -327,9 +324,8 @@ def get_course_team_url(course_locator) -> str:
     Gets course authoring microfrontend URL for course team page view.
     """
     mfe_base_url = get_course_authoring_url(course_locator)
-    if mfe_base_url:
-        return f'{mfe_base_url}/course/{course_locator}/course_team'
-    return None
+    course_mfe_url = f'{mfe_base_url}/course/{course_locator}/course_team'
+    return course_mfe_url if mfe_base_url else None
 
 
 def get_updates_url(course_locator) -> str:
@@ -349,9 +345,8 @@ def get_import_url(course_locator) -> str | None:
     Gets course authoring microfrontend URL for import page view.
     """
     mfe_base_url = get_course_authoring_url(course_locator)
-    if mfe_base_url:
-        return f'{mfe_base_url}/course/{course_locator}/import'
-    return None
+    course_mfe_url = f'{mfe_base_url}/course/{course_locator}/import'
+    return course_mfe_url if mfe_base_url else None
 
 
 def get_export_url(course_locator) -> str | None:
@@ -359,9 +354,8 @@ def get_export_url(course_locator) -> str | None:
     Gets course authoring microfrontend URL for export page view.
     """
     mfe_base_url = get_course_authoring_url(course_locator)
-    if mfe_base_url:
-        return f'{mfe_base_url}/course/{course_locator}/export'
-    return None
+    course_mfe_url = f'{mfe_base_url}/course/{course_locator}/export'
+    return course_mfe_url if mfe_base_url else None
 
 
 def get_optimizer_url(course_locator) -> str:
@@ -445,9 +439,8 @@ def get_certificates_url(course_locator) -> str:
     Gets course authoring microfrontend URL for certificates page view.
     """
     mfe_base_url = get_course_authoring_url(course_locator)
-    if mfe_base_url:
-        return f'{mfe_base_url}/course/{course_locator}/certificates'
-    return None
+    course_mfe_url = f'{mfe_base_url}/course/{course_locator}/certificates'
+    return course_mfe_url if mfe_base_url else None
 
 
 def get_textbooks_url(course_locator) -> str:
@@ -467,7 +460,8 @@ def get_group_configurations_url(course_locator) -> str:
     Gets course authoring microfrontend URL for group configurations page view.
     """
     mfe_base_url = get_course_authoring_url(course_locator)
-    return f'{mfe_base_url}/course/{course_locator}/group_configurations' if mfe_base_url else None
+    course_mfe_url = f'{mfe_base_url}/course/{course_locator}/group_configurations'
+    return course_mfe_url if mfe_base_url else None
 
 
 def get_custom_pages_url(course_locator) -> str:
